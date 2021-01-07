@@ -1,32 +1,38 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { url } from '../config.json';
 
 const UserHome = () => {
-  const [email, setEmail] = useState('email');
-  const [pin, setPin] = useState('pin');
-  const [name, setName] = useState('name');
-  const [mobileNumber, setMobileNumber] = useState('9874563210');
+  const [email, setEmail] = useState('');
+  const [pin, setPin] = useState('');
+  const [name, setName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const history = useHistory();
 
   useEffect(() => {
     axios
-      .post('/getuserdata', { token: localStorage.getItem('token') })
+      .post(url + '/users/getuserdata', {
+        token: localStorage.getItem('token'),
+      })
       .then(res => {
-        setEmail(res.data.email);
-        setPin(res.data.pin);
-        setMobileNumber(res.data.mobileNumber);
+        setEmail(res.data.user.email);
+        setPin(res.data.user.pin);
+        setMobileNumber(res.data.user.mobileNumber);
+        setName(res.data.user.name);
       })
       .catch(err => console.log(err));
   }, []);
 
   const updateData = value => {
-    const data = FormData();
-    data.append('token', localStorage.getItem('token'));
+    const token = localStorage.getItem('token');
+
     switch (value) {
       case 'pin':
         // data.append('email', email);
-        data.append('pin', pin);
+
         axios
-          .post('/updatedetails/:pin', data)
+          .patch(url + '/users/updatedetails/:pin', { pin, token })
           .then(res => {
             alert('pin changed');
           })
@@ -34,9 +40,12 @@ const UserHome = () => {
         break;
       case 'mobile':
         // data.append('email', email);
-        data.append('mobileNumber', mobileNumber);
+
         axios
-          .post('/updatedetails/:mobileNumber', data)
+          .patch(url + '/users/updatedetails/:mobileNumber', {
+            token,
+            mobileNumber,
+          })
           .then(res => {
             alert('mobile number changed');
           })
@@ -44,9 +53,9 @@ const UserHome = () => {
         break;
       case 'name':
         // data.append('email', email);
-        data.append('name', name);
+
         axios
-          .post('/updatedetails/:name', data)
+          .patch(url + '/users/updatedetails/:name', { token, name })
           .then(res => {
             alert('name changed');
           })
@@ -60,51 +69,51 @@ const UserHome = () => {
   return (
     <div className="box">
       <div className="formdiv">
-        <form>
-          <h2>{email}</h2>
-          <label>Name</label>
-          <input
-            type="text"
-            value={name}
-            placeholder={name}
-            pattern="[0-9]+"
-            onChange={e => setName(e.target.value)}
-            required
-          />
-          <button onClick={() => updateData('name')} className="button">
-            Update Name
-          </button>
-          <label>PIN</label>
-          <input
-            type="password"
-            value={pin}
-            placeholder={pin}
-            pattern="[0-9]+"
-            onChange={e => setPin(e.target.value)}
-            required
-          />
-          <button onClick={() => updateData('pin')} className="button">
-            Update Pin
-          </button>
-          <label>Mobile Number</label>
-          <input
-            type="tel"
-            value={mobileNumber}
-            placeholder={mobileNumber}
-            pattern="[0-9]{10}"
-            onChange={e => setMobileNumber(e.target.value)}
-            required
-          />
-          <button onClick={() => updateData('mobile')} className="button">
-            Update Mobile No.
-          </button>
-          <button
-            onClick={() => updateData('mobile')}
-            className="button logout"
-          >
-            Logout
-          </button>
-        </form>
+        <h2>{email}</h2>
+        <label>Name</label>
+        <input
+          type="text"
+          value={name}
+          placeholder={name}
+          onChange={e => setName(e.target.value)}
+          required
+        />
+        <button onClick={() => updateData('name')} className="button">
+          Update Name
+        </button>
+        <label>PIN</label>
+        <input
+          type="password"
+          value={pin}
+          placeholder={pin}
+          pattern="[0-9]+"
+          onChange={e => setPin(e.target.value)}
+          required
+        />
+        <button onClick={() => updateData('pin')} className="button">
+          Update Pin
+        </button>
+        <label>Mobile Number</label>
+        <input
+          type="tel"
+          value={mobileNumber}
+          placeholder={mobileNumber}
+          pattern="[0-9]{10}"
+          onChange={e => setMobileNumber(e.target.value)}
+          required
+        />
+        <button onClick={() => updateData('mobile')} className="button">
+          Update Mobile No.
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem('token');
+            history.push('/');
+          }}
+          className="button logout"
+        >
+          Logout
+        </button>
       </div>
     </div>
   );

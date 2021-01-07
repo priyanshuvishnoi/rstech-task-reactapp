@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import qs from 'querystring';
+import { url } from '../config.json';
 
 const SignUpForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
+  const history = useHistory();
 
   const handleSubmit = event => {
     event.preventDefault();
-
-    const formData = FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('pin', pin);
-    formData.append('mobileNumber', mobileNumber);
-
+    const formData = qs.stringify({ name, email, pin, mobileNumber });
     axios
-      .post('/signup', formData)
+      .post(url + '/users/usersignup', formData)
       .then(res => {
         alert('Sign Up successful');
+        console.log(res);
       })
       .catch(err => console.log(err));
+    history.push('/');
   };
 
   return (

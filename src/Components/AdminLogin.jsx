@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
+import qs from 'querystring';
+import { url } from '../config.json';
 import '../styles/form.css';
 
 const AdminLogin = () => {
@@ -10,13 +12,14 @@ const AdminLogin = () => {
 
   const handleSubmit = event => {
     event.preventDefault();
-    const formData = FormData();
-    formData.append('email', email);
-    formData.append('pin', pin);
-    axios.post('/adminlogin', formData).then(res => {
-      localStorage.setItem('token', res.data.token);
-      history.push('/adminhome');
-    });
+    const formData = qs.stringify({ email, pin });
+    axios
+      .post(url + '/admin/login', formData)
+      .then(res => {
+        localStorage.setItem('token', res.data.token);
+        history.push('/adminhome');
+      })
+      .catch(err => console.log(err));
   };
 
   return (
